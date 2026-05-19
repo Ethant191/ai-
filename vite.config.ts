@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: '/ai-/',
   plugins: [
     react(),
     VitePWA({
@@ -12,33 +13,33 @@ export default defineConfig({
         name: 'AI小账房',
         short_name: 'AI小账房',
         description: '记录学习 AI 赚钱过程中的投入、支出、收入和利润。',
-        start_url: '/',
-        scope: '/',
+        start_url: '/ai-/',
+        scope: '/ai-/',
         display: 'standalone',
         background_color: '#f8f8f7',
         theme_color: '#f8f8f7',
         lang: 'zh-CN',
         icons: [
           {
-            src: '/icon-192.png',
+            src: '/ai-/icon-192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icon-512.png',
+            src: '/ai-/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icon-512.png',
+            src: '/ai-/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
           },
           {
-            src: '/icon.svg',
+            src: '/ai-/icon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any'

@@ -16,16 +16,15 @@ npm run build
 npm run preview
 ```
 
-## 部署
+## GitHub Pages 部署
 
-把项目推送到 GitHub 后，可在 Netlify 选择从 GitHub 导入仓库，构建设置使用：
+项目已配置 GitHub Actions 自动部署到 GitHub Pages。推送到 `main` 分支后会自动构建并发布：
 
 ```text
-Build command: npm run build
-Publish directory: dist
+https://ethant191.github.io/ai-/
 ```
 
-之后每次修改代码并推送到 GitHub，Netlify 会自动重新构建并更新线上站点。
+首次使用时，在 GitHub 仓库的 `Settings` -> `Pages` 中确认构建来源为 `GitHub Actions`。
 
 ## 数据
 
