@@ -512,10 +512,52 @@ button {
 
 .records-list {
   display: grid;
-  gap: 10px;
+  gap: 16px;
   min-height: 0;
   overflow: auto;
   padding-top: 13px;
+}
+
+.records-day-group {
+  display: grid;
+  gap: 8px;
+}
+
+.records-day-group__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  padding: 5px 2px 6px;
+  background: #ffffff;
+  color: #777777;
+  font-size: 13px;
+}
+
+.records-day-group__header strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #2b2b2b;
+  font-size: 15px;
+  font-weight: 720;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.records-day-group__header span {
+  flex: 0 0 auto;
+  color: #8a8a8a;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.records-day-group__items {
+  display: grid;
+  gap: 10px;
 }
 
 .records-list__item {
