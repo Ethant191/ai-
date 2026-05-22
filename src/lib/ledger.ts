@@ -3,13 +3,11 @@ import type { LedgerRecord, LedgerTotals, LedgerType, TrendPoint } from '../type
 export const LEDGER_STORAGE_KEY = 'ai-xiao-zhangfang-records';
 
 export const typeLabels: Record<LedgerType, string> = {
-  investment: '投入',
   expense: '支出',
   income: '收入'
 };
 
 export const typeColors: Record<LedgerType, string> = {
-  investment: '#f9a023',
   expense: '#ef6550',
   income: '#35b779'
 };
@@ -30,12 +28,12 @@ export function getLedgerTotals(records: LedgerRecord[]): LedgerTotals {
       result[record.type] += record.amount;
       return result;
     },
-    { investment: 0, expense: 0, income: 0 }
+    { expense: 0, income: 0 }
   );
 
   return {
     ...totals,
-    profit: totals.income - totals.investment - totals.expense
+    profit: totals.income - totals.expense
   };
 }
 

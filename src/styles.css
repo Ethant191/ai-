@@ -61,6 +61,11 @@ button {
   gap: 12px;
 }
 
+.stats-grid--three .stat-card:last-child {
+  grid-column: 1 / -1;
+  min-height: 112px;
+}
+
 .stat-card {
   min-height: 132px;
   padding: 18px 18px 16px;
@@ -183,7 +188,7 @@ button {
 }
 
 .segmented-control {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   min-height: 44px;
 }
 
@@ -572,6 +577,42 @@ button {
   background: #fbfbfb;
 }
 
+.records-list__side {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.records-list__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.records-list__actions button,
+.records-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: #eeeeee;
+  color: #4f4f4f;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.records-list__actions button {
+  width: 32px;
+  height: 30px;
+}
+
+.records-list__actions button:last-child {
+  color: #e25545;
+}
+
 .records-list__meta {
   display: grid;
   gap: 6px;
@@ -596,6 +637,57 @@ button {
   font-size: 17px;
   font-weight: 760;
   white-space: nowrap;
+}
+
+.records-edit-card {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 11px;
+  width: 100%;
+}
+
+.records-edit-field {
+  display: grid;
+  gap: 7px;
+}
+
+.records-edit-field span {
+  color: #686868;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.records-edit-field input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 11px;
+  border: 1px solid #dddddd;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #171717;
+  outline: 0;
+}
+
+.records-edit-error {
+  margin: -2px 0 0;
+  color: #ef6550;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.records-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.records-action {
+  padding: 0 12px;
+}
+
+.records-action--primary {
+  background: #f9a023;
+  color: #ffffff;
 }
 
 .records-empty {

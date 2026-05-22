@@ -15,9 +15,21 @@ export function useLedgerRecords() {
     setRecords((currentRecords) => [record, ...currentRecords]);
   }
 
+  function updateRecord(id: string, updates: Pick<LedgerRecord, 'amount' | 'note'>) {
+    setRecords((currentRecords) =>
+      currentRecords.map((record) => (record.id === id ? { ...record, ...updates, note: updates.note.trim() } : record))
+    );
+  }
+
+  function deleteRecord(id: string) {
+    setRecords((currentRecords) => currentRecords.filter((record) => record.id !== id));
+  }
+
   return {
     records,
     totals,
-    addRecord
+    addRecord,
+    updateRecord,
+    deleteRecord
   };
 }

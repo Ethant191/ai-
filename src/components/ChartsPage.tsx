@@ -25,11 +25,10 @@ const rangeOptions = [7, 30, 90] as const;
 export default function ChartsPage({ records, totals }: ChartsPageProps) {
   const [range, setRange] = useState<(typeof rangeOptions)[number]>(30);
   const trendPoints = useMemo(() => getTrendPoints(records, range), [records, range]);
-  const costTotal = totals.investment + totals.expense;
-  const costData = [
-    { name: typeLabels.investment, value: totals.investment, color: typeColors.investment },
-    { name: typeLabels.expense, value: totals.expense, color: typeColors.expense }
-  ].filter((item) => item.value > 0);
+  const costTotal = totals.expense;
+  const costData = [{ name: typeLabels.expense, value: totals.expense, color: typeColors.expense }].filter(
+    (item) => item.value > 0
+  );
 
   return (
     <main className="page page--charts">

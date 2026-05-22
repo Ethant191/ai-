@@ -16,6 +16,8 @@ npm run build
 npm run preview
 ```
 
+生产构建产物输出到 `build/`。
+
 ## GitHub Pages 部署
 
 项目已配置 GitHub Actions 自动部署到 GitHub Pages。推送到 `main` 分支后会自动构建并发布：

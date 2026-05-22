@@ -4,6 +4,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   base: '/ai-/',
+  build: {
+    outDir: 'build'
+  },
   plugins: [
     react(),
     VitePWA({

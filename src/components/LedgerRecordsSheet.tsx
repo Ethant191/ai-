@@ -1,4 +1,5 @@
-import { X } from 'lucide-react';
+import { FormEvent, useState } from 'react';
+import { Check, Pencil, Trash2, X } from 'lucide-react';
 import { typeColors, typeLabels } from '../lib/ledger';
 import type { LedgerRecord, LedgerType } from '../types';
 import { formatCurrency, formatRecordDay, formatRecordTime } from '../utils/format';
@@ -7,11 +8,64 @@ interface LedgerRecordsSheetProps {
   type: LedgerType;
   records: LedgerRecord[];
   onClose: () => void;
+  onUpdateRecord: (id: string, updates: Pick<LedgerRecord, 'amount' | 'note'>) => void;
+  onDeleteRecord: (id: string) => void;
 }
 
-export default function LedgerRecordsSheet({ type, records, onClose }: LedgerRecordsSheetProps) {
+export default function LedgerRecordsSheet({
+  type,
+  records,
+  onClose,
+  onUpdateRecord,
+  onDeleteRecord
+}: LedgerRecordsSheetProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingAmount, setEditingAmount] = useState('');
+  const [editingNote, setEditingNote] = useState('');
+  const [editingError, setEditingError] = useState('');
   const total = records.reduce((sum, record) => sum + record.amount, 0);
   const groupedRecords = groupRecordsByDate(records);
+
+  function startEditing(record: LedgerRecord) {
+    setEditingId(record.id);
+    setEditingAmount(String(record.amount));
+    setEditingNote(record.note);
+    setEditingError('');
+  }
+
+  function cancelEditing() {
+    setEditingId(null);
+    setEditingAmount('');
+    setEditingNote('');
+    setEditingError('');
+  }
+
+  function handleEditSubmit(event: FormEvent<HTMLFormElement>, recordId: string) {
+    event.preventDefault();
+    const normalizedAmount = Number(editingAmount);
+
+    if (!Number.isFinite(normalizedAmount) || normalizedAmount <= 0) {
+      setEditingError('金额必须大于 0');
+      return;
+    }
+
+    onUpdateRecord(recordId, {
+      amount: Number(normalizedAmount.toFixed(2)),
+      note: editingNote
+    });
+    cancelEditing();
+  }
+
+  function handleDelete(record: LedgerRecord) {
+    const confirmed = window.confirm(`确定删除这笔${typeLabels[type]}账单吗？`);
+
+    if (confirmed) {
+      onDeleteRecord(record.id);
+      if (editingId === record.id) {
+        cancelEditing();
+      }
+    }
+  }
 
   return (
     <div className="sheet-backdrop" role="presentation" onClick={onClose}>
@@ -48,13 +102,60 @@ export default function LedgerRecordsSheet({ type, records, onClose }: LedgerRec
                 <div className="records-day-group__items">
                   {group.records.map((record) => (
                     <article className="records-list__item" key={record.id}>
-                      <div className="records-list__meta">
-                        <strong>{record.note || '未填写备注'}</strong>
-                        <span>{formatRecordTime(record.createdAt)}</span>
-                      </div>
-                      <span className="records-list__amount" style={{ color: typeColors[type] }}>
-                        {formatCurrency(record.amount)}
-                      </span>
+                      {editingId === record.id ? (
+                        <form className="records-edit-card" onSubmit={(event) => handleEditSubmit(event, record.id)}>
+                          <label className="records-edit-field">
+                            <span>金额</span>
+                            <input
+                              inputMode="decimal"
+                              min="0"
+                              step="0.01"
+                              type="number"
+                              value={editingAmount}
+                              onChange={(event) => setEditingAmount(event.target.value)}
+                            />
+                          </label>
+                          <label className="records-edit-field">
+                            <span>备注</span>
+                            <input
+                              type="text"
+                              value={editingNote}
+                              placeholder="请输入备注（可选）"
+                              onChange={(event) => setEditingNote(event.target.value)}
+                            />
+                          </label>
+                          {editingError ? <p className="records-edit-error">{editingError}</p> : null}
+                          <div className="records-edit-actions">
+                            <button className="records-action records-action--primary" type="submit">
+                              <Check size={16} />
+                              保存
+                            </button>
+                            <button className="records-action" type="button" onClick={cancelEditing}>
+                              取消
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <>
+                          <div className="records-list__meta">
+                            <strong>{record.note || '未填写备注'}</strong>
+                            <span>{formatRecordTime(record.createdAt)}</span>
+                          </div>
+                          <div className="records-list__side">
+                            <span className="records-list__amount" style={{ color: typeColors[type] }}>
+                              {formatCurrency(record.amount)}
+                            </span>
+                            <div className="records-list__actions" aria-label="账单操作">
+                              <button type="button" onClick={() => startEditing(record)} aria-label="修改账单">
+                                <Pencil size={15} />
+                              </button>
+                              <button type="button" onClick={() => handleDelete(record)} aria-label="删除账单">
+                                <Trash2 size={15} />
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </article>
                   ))}
                 </div>

@@ -1,4 +1,4 @@
-export type LedgerType = 'investment' | 'expense' | 'income';
+export type LedgerType = 'expense' | 'income';
 
 export type TabKey = 'home' | 'charts';
 
@@ -11,7 +11,6 @@ export interface LedgerRecord {
 }
 
 export interface LedgerTotals {
-  investment: number;
   expense: number;
   income: number;
   profit: number;

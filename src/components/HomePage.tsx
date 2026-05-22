@@ -1,5 +1,5 @@
 import { FormEvent, useMemo, useState } from 'react';
-import { ArrowDown, ArrowUp, CircleDollarSign, WalletCards } from 'lucide-react';
+import { ArrowDown, ArrowUp, WalletCards } from 'lucide-react';
 import { typeLabels } from '../lib/ledger';
 import type { LedgerRecord, LedgerTotals, LedgerType } from '../types';
 import LedgerRecordsSheet from './LedgerRecordsSheet';
@@ -9,12 +9,20 @@ interface HomePageProps {
   records: LedgerRecord[];
   totals: LedgerTotals;
   onAddRecord: (type: LedgerType, amount: number, note: string) => void;
+  onUpdateRecord: (id: string, updates: Pick<LedgerRecord, 'amount' | 'note'>) => void;
+  onDeleteRecord: (id: string) => void;
 }
 
-const ledgerTypes: LedgerType[] = ['investment', 'expense', 'income'];
+const ledgerTypes: LedgerType[] = ['expense', 'income'];
 
-export default function HomePage({ records, totals, onAddRecord }: HomePageProps) {
-  const [type, setType] = useState<LedgerType>('investment');
+export default function HomePage({
+  records,
+  totals,
+  onAddRecord,
+  onUpdateRecord,
+  onDeleteRecord
+}: HomePageProps) {
+  const [type, setType] = useState<LedgerType>('expense');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [message, setMessage] = useState<{ text: string; tone: 'success' | 'error' } | null>(null);
@@ -48,14 +56,7 @@ export default function HomePage({ records, totals, onAddRecord }: HomePageProps
 
   return (
     <main className="page page--home">
-      <div className="stats-grid">
-        <StatCard
-          label="总投入"
-          value={totals.investment}
-          tone="orange"
-          icon={CircleDollarSign}
-          onClick={() => setSelectedType('investment')}
-        />
+      <div className="stats-grid stats-grid--three">
         <StatCard
           label="支出"
           value={totals.expense}
@@ -136,7 +137,13 @@ export default function HomePage({ records, totals, onAddRecord }: HomePageProps
       </section>
 
       {selectedType ? (
-        <LedgerRecordsSheet type={selectedType} records={selectedRecords} onClose={() => setSelectedType(null)} />
+        <LedgerRecordsSheet
+          type={selectedType}
+          records={selectedRecords}
+          onClose={() => setSelectedType(null)}
+          onUpdateRecord={onUpdateRecord}
+          onDeleteRecord={onDeleteRecord}
+        />
       ) : null}
     </main>
   );
