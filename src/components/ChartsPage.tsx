@@ -2,33 +2,29 @@ import { useMemo, useState } from 'react';
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis
 } from 'recharts';
-import { getTrendPoints, typeColors, typeLabels } from '../lib/ledger';
-import type { LedgerRecord, LedgerTotals } from '../types';
+import { getTrendPoints } from '../lib/ledger';
+import type { LedgerRecord } from '../types';
 import { formatCurrency } from '../utils/format';
 
 interface ChartsPageProps {
   records: LedgerRecord[];
-  totals: LedgerTotals;
 }
 
 const rangeOptions = [7, 30, 90] as const;
 
-export default function ChartsPage({ records, totals }: ChartsPageProps) {
+export default function ChartsPage({ records }: ChartsPageProps) {
   const [range, setRange] = useState<(typeof rangeOptions)[number]>(30);
   const trendPoints = useMemo(() => getTrendPoints(records, range), [records, range]);
-  const costTotal = totals.expense;
-  const costData = [{ name: typeLabels.expense, value: totals.expense, color: typeColors.expense }].filter(
-    (item) => item.value > 0
-  );
+  const comparisonPoints = useMemo(() => getIncomeExpensePoints(records, range), [records, range]);
+  const hasComparisonData = comparisonPoints.some((point) => point.income > 0 || point.expense > 0);
 
   return (
     <main className="page page--charts">
@@ -95,45 +91,118 @@ export default function ChartsPage({ records, totals }: ChartsPageProps) {
         </div>
       </section>
 
-      <section className="chart-section chart-section--cost" aria-labelledby="cost-title">
-        <h2 id="cost-title">成本结构</h2>
+      <section className="chart-section chart-section--compare" aria-labelledby="compare-title">
+        <div className="chart-section__top chart-section__top--simple">
+          <h2 id="compare-title">收支对比</h2>
+        </div>
 
-        {costTotal > 0 ? (
-          <div className="cost-layout">
-            <div className="donut-frame">
+        {hasComparisonData ? (
+          <>
+            <div className="compare-legend" aria-label="收支图例">
+              <span>
+                <i className="compare-legend__dot compare-legend__dot--income" />
+                收入
+              </span>
+              <span>
+                <i className="compare-legend__dot compare-legend__dot--expense" />
+                支出
+              </span>
+            </div>
+
+            <div className="bar-chart-frame">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={costData} dataKey="value" innerRadius="58%" outerRadius="82%" paddingAngle={1}>
-                    {costData.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} />
-                    ))}
-                  </Pie>
+                <BarChart data={comparisonPoints} margin={{ top: 16, right: 12, bottom: 0, left: -18 }} barGap={4}>
+                  <CartesianGrid stroke="#ececec" strokeDasharray="4 4" vertical={false} />
+                  <XAxis
+                    dataKey="label"
+                    axisLine={false}
+                    tickLine={false}
+                    interval={Math.max(0, Math.floor(range / 6) - 1)}
+                    minTickGap={10}
+                    tick={{ fill: '#4d4d4d', fontSize: 11 }}
+                  />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#4d4d4d', fontSize: 11 }} width={52} />
                   <Tooltip
-                    formatter={(value) => [formatCurrency(Number(value)), '金额']}
+                    formatter={(value, name) => [
+                      formatCurrency(Number(value)),
+                      name === 'income' ? '收入' : '支出'
+                    ]}
+                    labelFormatter={(label) => `${label}`}
                     contentStyle={{
                       border: '1px solid #e9e9e9',
                       borderRadius: 12,
                       boxShadow: '0 10px 24px rgba(0, 0, 0, 0.08)'
                     }}
                   />
-                </PieChart>
+                  <Bar dataKey="income" fill="#35b779" radius={[5, 5, 0, 0]} maxBarSize={18} />
+                  <Bar dataKey="expense" fill="#ef6550" radius={[5, 5, 0, 0]} maxBarSize={18} />
+                </BarChart>
               </ResponsiveContainer>
             </div>
-
-            <div className="cost-legend">
-              {costData.map((item) => (
-                <div className="cost-legend__row" key={item.name}>
-                  <span className="cost-legend__dot" style={{ backgroundColor: item.color }} />
-                  <span className="cost-legend__name">{item.name}</span>
-                  <strong>{Math.round((item.value / costTotal) * 100)}%</strong>
-                </div>
-              ))}
-            </div>
-          </div>
+          </>
         ) : (
-          <div className="empty-chart">暂无成本数据</div>
+          <div className="empty-chart">暂无收支数据</div>
         )}
       </section>
     </main>
   );
+}
+
+interface ComparisonPoint {
+  date: string;
+  label: string;
+  income: number;
+  expense: number;
+}
+
+function getIncomeExpensePoints(records: LedgerRecord[], days: number): ComparisonPoint[] {
+  const today = startOfDay(new Date());
+  const firstDate = addDays(today, -(days - 1));
+
+  return Array.from({ length: days }, (_, index) => {
+    const day = addDays(firstDate, index);
+    const date = formatDateKey(day);
+    const dayRecords = records.filter((record) => formatDateKey(new Date(record.createdAt)) === date);
+
+    return {
+      date,
+      label: formatShortDate(day),
+      income: getTypeTotal(dayRecords, 'income'),
+      expense: getTypeTotal(dayRecords, 'expense')
+    };
+  });
+}
+
+function getTypeTotal(records: LedgerRecord[], type: 'income' | 'expense'): number {
+  return Number(
+    records
+      .filter((record) => record.type === type)
+      .reduce((sum, record) => sum + record.amount, 0)
+      .toFixed(2)
+  );
+}
+
+function startOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addDays(date: Date, days: number): Date {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + days);
+  return nextDate;
+}
+
+function formatDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+function formatShortDate(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${month}-${day}`;
 }

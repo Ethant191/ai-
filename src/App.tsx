@@ -20,7 +20,7 @@ export default function App() {
           onDeleteRecord={deleteRecord}
         />
       ) : (
-        <ChartsPage records={records} totals={totals} />
+        <ChartsPage records={records} />
       )}
 
       <BottomTabs activeTab={activeTab} onChange={setActiveTab} />
